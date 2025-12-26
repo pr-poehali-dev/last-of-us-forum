@@ -1,0 +1,72 @@
+{
+  "tests": [
+    {
+      "name": "Get all users",
+      "method": "GET",
+      "path": "/?action=users",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "users": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get current user",
+      "method": "GET",
+      "path": "/?action=user",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "user": "object"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get all threads",
+      "method": "GET",
+      "path": "/?action=threads",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "threads": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create new thread",
+      "method": "POST",
+      "path": "/?action=thread",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "title": "Test thread",
+        "content": "Test content",
+        "category": "Обсуждения"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "threadId": "number"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Update user profile",
+      "method": "PUT",
+      "path": "/?action=user",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "displayName": "Updated Name",
+        "bio": "Updated bio"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
