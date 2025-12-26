@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 
@@ -55,6 +56,7 @@ interface User {
   bio?: string;
   friends?: number;
   isFriend?: boolean;
+  avatar?: string;
 }
 
 const Index = () => {
@@ -66,6 +68,28 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('Обсуждения');
   const [selectedThread, setSelectedThread] = useState<Thread | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  
+  const currentUser: User = {
+    name: 'Joel_Miller',
+    posts: 1247,
+    reputation: 4892,
+    badges: ['👑', '🔥', '🏹'],
+    level: 47,
+    online: true,
+    joinDate: 'Январь 2023',
+    bio: 'Опытный выживший. Люблю стелс-прохождения и сбор всех коллекционных предметов.',
+    friends: 156,
+    avatar: 'https://cdn.poehali.dev/projects/a80e004a-6913-466a-8e55-6ed583e8499f/files/acd40e36-2b37-488f-aaf0-17b4b73d9d3e.jpg'
+  };
+
+  const avatars: { [key: string]: string } = {
+    'Joel_Miller': 'https://cdn.poehali.dev/projects/a80e004a-6913-466a-8e55-6ed583e8499f/files/acd40e36-2b37-488f-aaf0-17b4b73d9d3e.jpg',
+    'Ellie_Williams': 'https://cdn.poehali.dev/projects/a80e004a-6913-466a-8e55-6ed583e8499f/files/69eb8231-8692-46ff-b824-3f31e484a3d0.jpg',
+    'Tommy_Texas': 'https://cdn.poehali.dev/projects/a80e004a-6913-466a-8e55-6ed583e8499f/files/8689afa4-7357-4569-b416-9b794e552ec3.jpg',
+  };
+
   const [threads, setThreads] = useState<Thread[]>([
     { id: 1, title: 'Тактика прохождения больницы без обнаружения', author: 'Joel_Miller', replies: 47, views: 1203, likes: 89, category: 'Гайды', pinned: true, timestamp: '2 часа назад', lastActivity: '15 мин назад', content: 'Делюсь проверенной тактикой стелс-прохождения больницы. Главное - не торопиться и использовать слух для обнаружения врагов.' },
     { id: 2, title: 'Новый трейлер сезона 2 - разбор кадров', author: 'Ellie_Williams', replies: 89, views: 2456, likes: 156, category: 'Новости', pinned: true, timestamp: '5 часов назад', lastActivity: '3 мин назад', content: 'Вышел новый трейлер! Разбираю все детали и пасхалки из показанных кадров.' },
@@ -95,12 +119,19 @@ const Index = () => {
   const [createThreadOpen, setCreateThreadOpen] = useState(false);
 
   const [topUsers, setTopUsers] = useState<User[]>([
-    { name: 'Joel_Miller', posts: 1247, reputation: 4892, badges: ['👑', '🔥', '🏹'], level: 47, online: true, joinDate: 'Январь 2023', bio: 'Опытный выживший. Люблю стелс-прохождения и сбор всех коллекционных предметов.', friends: 156, isFriend: false },
-    { name: 'Ellie_Williams', posts: 982, reputation: 3654, badges: ['🔥', '🏹', '🍄'], level: 42, online: true, joinDate: 'Март 2023', bio: 'Фанат серии TLOU. Обожаю обсуждать теории и лор игры.', friends: 203, isFriend: true },
-    { name: 'Tommy_Texas', posts: 756, reputation: 2891, badges: ['🏹', '🍄', '🎯'], level: 38, online: false, joinDate: 'Май 2023', bio: 'Прохожу игру в 5-й раз. Всегда рад помочь новичкам советом.', friends: 98, isFriend: false },
+    { name: 'Joel_Miller', posts: 1247, reputation: 4892, badges: ['👑', '🔥', '🏹'], level: 47, online: true, joinDate: 'Январь 2023', bio: 'Опытный выживший. Люблю стелс-прохождения и сбор всех коллекционных предметов.', friends: 156, isFriend: false, avatar: avatars['Joel_Miller'] },
+    { name: 'Ellie_Williams', posts: 982, reputation: 3654, badges: ['🔥', '🏹', '🍄'], level: 42, online: true, joinDate: 'Март 2023', bio: 'Фанат серии TLOU. Обожаю обсуждать теории и лор игры.', friends: 203, isFriend: true, avatar: avatars['Ellie_Williams'] },
+    { name: 'Tommy_Texas', posts: 756, reputation: 2891, badges: ['🏹', '🍄', '🎯'], level: 38, online: false, joinDate: 'Май 2023', bio: 'Прохожу игру в 5-й раз. Всегда рад помочь новичкам советом.', friends: 98, isFriend: false, avatar: avatars['Tommy_Texas'] },
     { name: 'Abby_Anderson', posts: 623, reputation: 2445, badges: ['🏹', '🎯'], level: 34, online: true, joinDate: 'Июль 2023', bio: 'Создаю видео-гайды и стримлю прохождения.', friends: 187, isFriend: false },
     { name: 'Dr_Infected', posts: 534, reputation: 2103, badges: ['🍄', '🎯'], level: 31, online: false, joinDate: 'Август 2023', bio: 'Биолог, интересуюсь научной стороной кордицепса.', friends: 72, isFriend: false },
   ]);
+
+  const notifications = [
+    { id: 1, type: 'like', user: 'Ellie_Williams', text: 'оценила ваш комментарий', time: '5 мин назад' },
+    { id: 2, type: 'comment', user: 'Tommy_Texas', text: 'ответил в вашей теме', time: '15 мин назад' },
+    { id: 3, type: 'friend', user: 'Abby_Anderson', text: 'добавила вас в друзья', time: '1 час назад' },
+    { id: 4, type: 'badge', user: 'Система', text: 'Вы получили достижение "Охотник"', time: '2 часа назад' },
+  ];
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -139,7 +170,7 @@ const Index = () => {
     const newThread: Thread = {
       id: threads.length + 1,
       title: newThreadTitle,
-      author: 'Joel_Miller',
+      author: currentUser.name,
       replies: 0,
       views: 0,
       likes: 0,
@@ -165,7 +196,7 @@ const Index = () => {
 
     const comment: Comment = {
       id: comments.length + 1,
-      author: 'Joel_Miller',
+      author: currentUser.name,
       content: newComment,
       likes: 0,
       timestamp: 'Только что',
@@ -248,13 +279,139 @@ const Index = () => {
                 />
                 <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               </div>
-              <Button variant="ghost" size="icon" className="relative">
-                <Icon name="Bell" className="text-muted-foreground" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
-              </Button>
-              <Avatar className="border-2 border-primary cursor-pointer hover:scale-105 transition-transform">
-                <AvatarFallback className="bg-primary text-primary-foreground font-bold">JM</AvatarFallback>
-              </Avatar>
+              
+              <Sheet open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Icon name="Bell" className="text-muted-foreground" />
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full"></span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="w-80 bg-card">
+                  <SheetHeader>
+                    <SheetTitle>Уведомления</SheetTitle>
+                  </SheetHeader>
+                  <div className="space-y-3 mt-6">
+                    {notifications.map(notif => (
+                      <div key={notif.id} className="p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+                        <div className="flex items-start gap-3">
+                          <Avatar className="w-10 h-10">
+                            <AvatarImage src={avatars[notif.user]} />
+                            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+                              {notif.user.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="text-sm">
+                              <span className="font-semibold">{notif.user}</span> {notif.text}
+                            </p>
+                            <span className="text-xs text-muted-foreground">{notif.time}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
+                <SheetTrigger asChild>
+                  <Avatar className="border-2 border-primary cursor-pointer hover:scale-105 transition-transform">
+                    <AvatarImage src={currentUser.avatar} />
+                    <AvatarFallback className="bg-primary text-primary-foreground font-bold">
+                      {currentUser.name.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </SheetTrigger>
+                <SheetContent className="w-96 bg-card overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>Мой профиль</SheetTitle>
+                  </SheetHeader>
+                  <div className="space-y-6 mt-6">
+                    <div className="flex flex-col items-center text-center">
+                      <div className="relative">
+                        <Avatar className="w-24 h-24 border-4 border-primary">
+                          <AvatarImage src={currentUser.avatar} />
+                          <AvatarFallback className="bg-primary text-primary-foreground text-3xl font-bold">
+                            {currentUser.name.substring(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="absolute bottom-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-card"></span>
+                      </div>
+                      <h2 className="text-2xl font-bold mt-4">{currentUser.name}</h2>
+                      <Badge className="bg-primary/20 text-primary border-primary mt-2">
+                        Уровень {currentUser.level}
+                      </Badge>
+                      <p className="text-sm text-muted-foreground mt-3">{currentUser.bio}</p>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3">
+                      <Card className="p-4 text-center bg-muted/30">
+                        <div className="text-2xl font-bold text-primary">{currentUser.posts}</div>
+                        <div className="text-xs text-muted-foreground">Сообщений</div>
+                      </Card>
+                      <Card className="p-4 text-center bg-muted/30">
+                        <div className="text-2xl font-bold text-primary">{currentUser.reputation}</div>
+                        <div className="text-xs text-muted-foreground">Репутация</div>
+                      </Card>
+                      <Card className="p-4 text-center bg-muted/30">
+                        <div className="text-2xl font-bold text-primary">{currentUser.friends}</div>
+                        <div className="text-xs text-muted-foreground">Друзей</div>
+                      </Card>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-3 flex items-center gap-2">
+                        <Icon name="Award" size={18} />
+                        Мои достижения
+                      </h3>
+                      <div className="grid grid-cols-4 gap-2">
+                        {currentUser.badges.map((badge, i) => (
+                          <div key={i} className="text-4xl p-3 bg-muted/30 rounded-lg text-center hover:scale-110 transition-transform cursor-pointer">
+                            {badge}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold mb-3 flex items-center gap-2">
+                        <Icon name="TrendingUp" size={18} />
+                        Прогресс до следующего уровня
+                      </h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">4892 / 5000 XP</span>
+                          <span className="font-medium">97%</span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
+                          <div className="bg-gradient-to-r from-primary to-accent h-full rounded-full" style={{ width: '97%' }}></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Button className="w-full" variant="outline">
+                        <Icon name="Settings" size={16} className="mr-2" />
+                        Настройки профиля
+                      </Button>
+                      <Button className="w-full" variant="outline">
+                        <Icon name="Users" size={16} className="mr-2" />
+                        Мои друзья
+                      </Button>
+                      <Button className="w-full" variant="outline">
+                        <Icon name="MessageSquare" size={16} className="mr-2" />
+                        Мои темы
+                      </Button>
+                    </div>
+
+                    <div className="text-xs text-muted-foreground flex items-center gap-2 justify-center pt-4 border-t">
+                      <Icon name="Calendar" size={14} />
+                      На форуме с {currentUser.joinDate}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
@@ -363,6 +520,7 @@ const Index = () => {
                         <Card className="p-4 thread-hover cursor-pointer border-l-4 border-l-transparent hover:border-l-primary" onClick={() => setSelectedThread(thread)}>
                           <div className="flex items-start gap-4">
                             <Avatar className="border border-border">
+                              <AvatarImage src={avatars[thread.author]} />
                               <AvatarFallback className="bg-secondary text-secondary-foreground text-sm">
                                 {thread.author.substring(0, 2).toUpperCase()}
                               </AvatarFallback>
@@ -457,6 +615,7 @@ const Index = () => {
                               {comments.map(comment => (
                                 <div key={comment.id} className="flex gap-3 p-3 bg-muted/30 rounded-lg">
                                   <Avatar className="w-8 h-8">
+                                    <AvatarImage src={avatars[comment.author]} />
                                     <AvatarFallback className="bg-secondary text-xs">
                                       {comment.author.substring(0, 2).toUpperCase()}
                                     </AvatarFallback>
@@ -527,6 +686,7 @@ const Index = () => {
                             </div>
                             <div className="relative">
                               <Avatar className="border-2 border-primary w-12 h-12">
+                                <AvatarImage src={user.avatar} />
                                 <AvatarFallback className="bg-primary text-primary-foreground font-bold">
                                   {user.name.substring(0, 2).toUpperCase()}
                                 </AvatarFallback>
@@ -558,6 +718,7 @@ const Index = () => {
                             <div className="flex items-start gap-4">
                               <div className="relative">
                                 <Avatar className="w-20 h-20 border-4 border-primary">
+                                  <AvatarImage src={selectedUser?.avatar} />
                                   <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
                                     {selectedUser?.name.substring(0, 2).toUpperCase()}
                                   </AvatarFallback>
@@ -666,6 +827,7 @@ const Index = () => {
                           #{index + 1}
                         </div>
                         <Avatar className="border-2 border-primary w-10 h-10">
+                          <AvatarImage src={user.avatar} />
                           <AvatarFallback className="bg-primary text-primary-foreground font-bold text-sm">
                             {user.name.substring(0, 2).toUpperCase()}
                           </AvatarFallback>
